@@ -19,3 +19,6 @@ Sayrd:Saryd*
 Sadry:Saryd*
 Kimik:Kimek*
 Kimke:Kimek*
+morgage:Mortgage*
+Mortgage*:It's a crime how much interest the banks charge to first-timers
+navy license: @Kiko#0822 says, "IT'S BEING WORKED ON, OK?"
