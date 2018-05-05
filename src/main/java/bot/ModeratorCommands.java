@@ -156,6 +156,13 @@ implements CommandExecutor{
 			}
 			else
 				message += "(no reason given).";
+			try{
+				TextChannel corner = guild.getTextChannelsByName("the-corner", false).get(0);
+				corner.sendMessage(message).queue();
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
 			
 			logCommand(guild, message);
 		}
