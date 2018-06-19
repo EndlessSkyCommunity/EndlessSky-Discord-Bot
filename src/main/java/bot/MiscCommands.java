@@ -40,7 +40,7 @@ implements CommandExecutor{
 	private final CommandHandler commandHandler;
 	private ESBot bot;
 	//Free-To-Join Roles have to be lowercase
-	private List<String> OPTINROLES = Arrays.asList("weeb", "notes");
+	private List<String> OPTINROLES = Arrays.asList("weeb", "notes", "traveler");
 
 	public MiscCommands(CommandHandler commandHandler, ESBot bot) {
 		this.commandHandler = commandHandler;
