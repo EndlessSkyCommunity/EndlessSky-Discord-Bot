@@ -29,3 +29,6 @@ navy\ lisense : <@251148565479555072> says, "IT'S BEING WORKED ON, OK?"
 navy\ licence : <@251148565479555072> says, "IT'S BEING WORKED ON, OK?"
 lisense : License*
 licence : License*
+autism : <@183601683987824641>
+autist : <@183601683987824641>
+dragon : <@183601683987824641>
