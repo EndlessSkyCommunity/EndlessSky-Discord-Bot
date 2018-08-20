@@ -6,3 +6,4 @@ hai:hai.png
 ion:hai.png
 kryes:kryes.png
 startome:startome.png
+spacevan:spacevan.png
