@@ -41,11 +41,20 @@ public class Show extends Command {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(guild.getSelfMember().getColor())
                 .setImage(lookups.getImageUrl(node, false));
-        return new MessageBuilder()
-                .setEmbed(embedBuilder.isEmpty() ? null : embedBuilder.build()) // if no image was found, the embed builder cannot be built
-                .append("```")
-                .append(lookups.getNodeAsText(node))
-                .append("```")
-                .build();
+        String description = lookups.getNodeAsText(node);
+        if (description.Length() > 2000) {
+            Util.sendInChunks(event.getTextChannel(), description.split("(?=\n)"));
+            return new MessageBuilder()
+                    .setEmbed(embedBuilder.isEmpty() ? null : embedBuilder.build()) // if no image was found, the embed builder cannot be built
+                    .build();
+        }
+        else {
+            return new MessageBuilder()
+                    .setEmbed(embedBuilder.isEmpty() ? null : embedBuilder.build()) // if no image was found, the embed builder cannot be built
+                    .append("```")
+                    .append(description)
+                    .append("```")
+                    .build();
+        }
     }
 }
