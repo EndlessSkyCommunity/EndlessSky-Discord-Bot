@@ -57,9 +57,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        if(looping)
-            player.playTrack(player.getPlayingTrack());
-        else if(endReason.mayStartNext)
+        f(endReason.mayStartNext)
             skip();
     }
 
