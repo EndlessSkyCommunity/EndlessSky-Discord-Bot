@@ -40,13 +40,13 @@ public class Show extends Command {
     private void checkLength(CommandEvent event, DataNode node) {
         String description = lookups.getNodeAsText(node);
         int length = description.length();
-        if (length <= 2000)
+        if (length <= 1994) //2000 character limit per message, and we need 6 characters for leading and trailing backticks
             event.reply(createShowMessage(node, event.getGuild(), description));
         else {
             int excess = length % 2000;
             int trailStarts = length - excess;
             Util.sendInChunks(event.getTextChannel(), description.split("(?=\n)"));
-            
+            event.reply(createShowMessage(node, event.getGuild(), ""));
         }
     }
 
