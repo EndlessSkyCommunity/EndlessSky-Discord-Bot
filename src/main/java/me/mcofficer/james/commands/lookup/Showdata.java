@@ -1,8 +1,8 @@
 package me.mcofficer.james.commands.lookup;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import me.mcofficer.esparser.DataNode;
+import me.mcofficer.james.commands.lookup.ShowCommand;
 import me.mcofficer.james.James;
 import me.mcofficer.james.Util;
 import me.mcofficer.james.tools.Lookups;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Showdata extends Command {
+public class Showdata extends ShowCommand {
 
     private final Lookups lookups;
 
