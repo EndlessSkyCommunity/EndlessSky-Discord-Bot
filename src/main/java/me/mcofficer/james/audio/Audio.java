@@ -171,6 +171,10 @@ public class Audio {
         event.reply(embedBuilder.build());
     }
 
+    public void announceInvalidRemove(CommandEvent event) {
+        event.reply(createEmbedTemplate(event.getGuild()).setDescription(String.format("That's not a valid number!")).build());
+    }
+
     /**
      * @return the VoiceChannel the bot is connected to, or null if it's not connected at all.
      */
