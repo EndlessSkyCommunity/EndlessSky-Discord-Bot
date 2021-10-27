@@ -1,8 +1,8 @@
 package me.mcofficer.james.commands.lookup;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import me.mcofficer.esparser.DataNode;
+import me.mcofficer.james.commands.lookup.ShowCommand;
 import me.mcofficer.james.James;
 import me.mcofficer.james.Util;
 import me.mcofficer.james.tools.Lookups;
@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.util.List;
 
-public class Showimage extends Command {
+public class Showimage extends ShowCommand {
 
     private final Lookups lookups;
 
@@ -37,9 +37,6 @@ public class Showimage extends Command {
     }
 
     private MessageEmbed createShowimageMessage(DataNode node, Guild guild) {
-        return new EmbedBuilder()
-                .setColor(guild.getSelfMember().getColor())
-                .setImage(lookups.getImageUrl(node, false))
-                .build();
+        return embedImageByNode(node, guild, lookups, false).build();
     }
 }
