@@ -111,7 +111,7 @@ public class James {
 
         builder.addCommands(
                 new Eval(lookups, playlists, cfg),
-                new Play(audio), new Stop(audio), new Skip(audio), new Shuffle(audio), new Current(audio),
+                new Play(audio), new Stop(audio), new Skip(audio), new Remove(audio), new Shuffle(audio), new Current(audio),
                 new Pause(audio), new Unpause(audio), new Queue(audio), new Playlist(audio, playlists),
                 new SwizzleImage(), new Template(),
                 new Cat(), new Dog(), new Birb(), new Translate(new Translator(okHttpClient)),
