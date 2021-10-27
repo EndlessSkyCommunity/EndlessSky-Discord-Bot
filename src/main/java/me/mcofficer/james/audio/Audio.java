@@ -138,6 +138,16 @@ public class Audio {
                 .setThumbnail(James.GITHUB_RAW_URL + "thumbnails/play.png");
         event.reply(embedBuilder.build());
     }
+    
+    public void getLoop(CommandEvent event) {
+        boolean looping = trackScheduler.getLooping();
+        event.reply(createEmbedTemplate(event.getGuild()).setDescription("Currently " + (looping ? "" : "not ") + "looping.").build());
+    }
+
+    public void setLoop(CommandEvent event, boolean loop) {
+        trackScheduler.setLooping(loop);
+        event.reply(createEmbedTemplate(event.getGuild()).setDescription("Turned looping " + (loop ? "on" : "off") + ".").build());
+    }
 
     /** Skips a number of Tracks and announces it.
      * @param event
