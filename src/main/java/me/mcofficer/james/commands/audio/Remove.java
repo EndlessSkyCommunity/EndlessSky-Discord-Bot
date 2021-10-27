@@ -4,6 +4,8 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import me.mcofficer.james.James;
 import me.mcofficer.james.audio.Audio;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 
 public class Remove extends Command {
     private final Audio audio;
@@ -25,7 +27,10 @@ public class Remove extends Command {
             try {
                 position = Integer.parseInt(event.getArgs());
             }
-            catch (NumberFormatException e) {}
+            catch (NumberFormatException e) {
+                event.reply(createEmbedTemplate(event.getGuild()).setDescription(String.formet("That's not a valid number!")).build());
+                return;
+            }
             audio.remove(event, position);
         }
     }
