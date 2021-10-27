@@ -45,8 +45,8 @@ public class Show extends Command {
         else {
             int excess = length % 2000;
             int trailStarts = length - excess;
-            Util.sendInChunks(event.getTextChannel(), description.substring(0, trailStarts - 1).split("(?=\n)"));
-            event.reply(createShowMessage(node, event.getGuild(), description.substring(trailStarts, length - 1)));
+            Util.sendInChunks(event.getTextChannel(), description.split("(?=\n)"));
+            
         }
     }
 
@@ -60,6 +60,5 @@ public class Show extends Command {
                 .append(description)
                 .append("```")
                 .build();
-        
     }
 }
