@@ -34,7 +34,7 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     public AudioTrack remove(int position) {
-        if (position >= getQueueSize())
+        if (position > getQueueSize())
             return null;
         return queue.remove(position - 1);
     }
