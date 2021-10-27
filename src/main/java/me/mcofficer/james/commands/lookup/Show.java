@@ -33,7 +33,6 @@ public class Show extends Command {
         event.reply("Found no matches for `" + event.getArgs() + "`!");
     else if (matches.size() == 1)
         checkLength(event, matches.get(0));
-        //event.reply(createShowMessage(matches.get(0), event.getGuild()));
     else
         Util.displayNodeSearchResults(matches, event, (((message, integer) -> checkLength(event, matches.get(integer - 1)))));
     }
@@ -45,8 +44,8 @@ public class Show extends Command {
             event.reply(createShowMessage(node, event.getGuild(), description));
         else {
             int excess = length % 2000;
-            int trailStarts = length - 1 - excess;
-            Util.sendInChunks(event.getTextChannel(), description.substring(0, trailStarts).split("(?=\n)"));
+            int trailStarts = length - excess;
+            Util.sendInChunks(event.getTextChannel(), description.substring(0, trailStarts - 1).split("(?=\n)"));
             event.reply(createShowMessage(node, event.getGuild(), description.substring(trailStarts, length - 1)));
         }
     }
