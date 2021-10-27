@@ -278,6 +278,10 @@ public class Util {
         return revisedPaths;
     }
 
+    public static String sendInChunksReturnLast(TextChannel channel, String... output) {
+        return sendInChunksHelper(channel, Arrays.asList(output), "```", "```", true);
+    }
+
     /**
      * Convenience method for {@link #sendInChunks(TextChannel, List, String, String)},
      * accepts Arrays of Strings and assumes triple backticks as footer & header.
@@ -296,16 +300,21 @@ public class Util {
      * @param header    A string that should prefix every chunk.
      * @param footer    A string that should end every chunk.
      */
-    public static void sendInChunks(TextChannel channel, List<String> output, String header, String footer){
+    public static void sendInChunks(TextChannel channel, List<String> output, String header, String footer) {
+        String whatever = sendInChunksHelper(channel, output, header, footer, false);
+        return;
+    }
+
+    private static String sendInChunksHelper(TextChannel channel, List<String> output, String header, String footer, boolean returnLastChunk) {
         if(output.isEmpty())
-            return;
+            return "";
 
         StringBuilder chunk = new StringBuilder(header);
         int chunkSize = chunk.length() + footer.length();
         final int sizeLimit = 1990;
         if(chunkSize > sizeLimit){
             System.out.println("Cannot ever print: header + footer too large.");
-            return;
+            return "";
         }
         for(String str : output){
             if(chunkSize + str.length() <= sizeLimit)
@@ -316,9 +325,14 @@ public class Util {
             }
             chunkSize = chunk.length() + footer.length();
         }
-        // Write the final chunk.
-        if(chunk.length() > header.length())
+        // Write, or return the final chunk.
+        if(chunk.length() > header.length()) {
+            if (returnLastChunk) {
+                return chunk.append(footer).toString();
+            }
             channel.sendMessage(chunk.append(footer).toString()).queue();
+        }
+        return "";
     }
 
 
