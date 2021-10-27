@@ -196,7 +196,7 @@ public class Lookups {
      * @return A String or null.
      */
     @CheckForNull
-    private String getDescription(DataNode node) {
+    public String getDescription(DataNode node) {
         DataNode descNode = getDescriptionChildNode(node);
         if (descNode == null)
             return null;
