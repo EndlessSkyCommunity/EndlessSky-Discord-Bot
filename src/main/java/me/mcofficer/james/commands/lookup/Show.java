@@ -32,29 +32,35 @@ public class Show extends Command {
     if (matches.size() < 1)
         event.reply("Found no matches for `" + event.getArgs() + "`!");
     else if (matches.size() == 1)
-        event.reply(createShowMessage(matches.get(0), event.getGuild()));
+        checkLength(event, matches.get(0));
+        //event.reply(createShowMessage(matches.get(0), event.getGuild()));
     else
-        Util.displayNodeSearchResults(matches, event, (((message, integer) -> event.reply(createShowMessage(matches.get(integer - 1), event.getGuild())))));
+        Util.displayNodeSearchResults(matches, event, (((message, integer) -> checkLength(event, matches.get(integer - 1)))));
     }
 
-    private Message createShowMessage(DataNode node, Guild guild) {
+    private void checkLength(CommandEvent event, DataNode node) {
+        String description = lookups.getNodeAsText(node);
+        int length = description.length();
+        if (length <= 2000)
+            event.reply(createShowMessage(node, event.getGuild(), description));
+        else {
+            int excess = length % 2000;
+            int trailStarts = length - 1 - excess;
+            Util.sendInChunks(event.getTextChannel(), description.substring(0, trailStarts).split("(?=\n)"));
+            event.reply(createShowMessage(node, event.getGuild(), description.substring(trailStarts, length - 1)));
+        }
+    }
+
+    private Message createShowMessage(DataNode node, Guild guild, String description) {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(guild.getSelfMember().getColor())
                 .setImage(lookups.getImageUrl(node, false));
-        String description = lookups.getNodeAsText(node);
-        if (description.Length() > 2000) {
-            Util.sendInChunks(event.getTextChannel(), description.split("(?=\n)"));
-            return new MessageBuilder()
-                    .setEmbed(embedBuilder.isEmpty() ? null : embedBuilder.build()) // if no image was found, the embed builder cannot be built
-                    .build();
-        }
-        else {
-            return new MessageBuilder()
-                    .setEmbed(embedBuilder.isEmpty() ? null : embedBuilder.build()) // if no image was found, the embed builder cannot be built
-                    .append("```")
-                    .append(description)
-                    .append("```")
-                    .build();
-        }
+        return new MessageBuilder()
+                .setEmbed(embedBuilder.isEmpty() ? null : embedBuilder.build()) // if no image was found, the embed builder cannot be built
+                .append("```")
+                .append(description)
+                .append("```")
+                .build();
+        
     }
 }
