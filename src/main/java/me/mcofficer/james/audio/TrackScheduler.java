@@ -17,7 +17,6 @@ public class TrackScheduler extends AudioEventAdapter {
     public TrackScheduler(AudioPlayer player) {
         this.player = player;
         player.addListener(this);
-        looping = false;
     }
 
     /**
