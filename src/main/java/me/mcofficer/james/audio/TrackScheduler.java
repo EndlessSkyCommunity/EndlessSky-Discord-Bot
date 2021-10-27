@@ -13,10 +13,14 @@ public class TrackScheduler extends AudioEventAdapter {
 
     private final AudioPlayer player;
     private final LinkedList<AudioTrack> queue = new LinkedList<>();
+    
+    private boolean looping;
+    private AudioTrack trackToLoop;
 
     public TrackScheduler(AudioPlayer player) {
         this.player = player;
         player.addListener(this);
+        looping = false;
     }
 
     /**
@@ -38,6 +42,7 @@ public class TrackScheduler extends AudioEventAdapter {
      * @param track
      */
     public void play(AudioTrack track) {
+        trackToLoop = track;
         player.playTrack(track);
     }
 
@@ -49,10 +54,14 @@ public class TrackScheduler extends AudioEventAdapter {
             queue.offer(track);
     }
 
-    @Override
+     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        if(endReason.mayStartNext)
-            skip();
+        if(endReason.mayStartNext) {
+            if (looping)
+                play(trackToLoop);
+            else
+                skip();
+        }
     }
 
     /**
@@ -60,6 +69,7 @@ public class TrackScheduler extends AudioEventAdapter {
      */
     public void stop() {
         player.stopTrack();
+        looping = false;
         queue.clear();
     }
 
