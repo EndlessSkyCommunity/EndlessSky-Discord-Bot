@@ -73,6 +73,14 @@ public class TrackScheduler extends AudioEventAdapter {
         queue.clear();
     }
 
+    public void setLooping(boolean loop) {
+        looping = loop;
+    }
+
+    public boolean getLooping() {
+        return looping;
+    }
+
     public LinkedList<AudioTrack> getQueue() {
         return queue;
     }
