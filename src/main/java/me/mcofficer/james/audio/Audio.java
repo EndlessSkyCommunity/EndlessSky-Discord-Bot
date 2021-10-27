@@ -159,7 +159,7 @@ public class Audio {
     }
 
     public void remove(CommandEvent event, int position) {
-        announceRemove(event, trackScheduler.remove(position));
+        announceRemove(event, trackScheduler.remove(position == -1 ? trackScheduler.getQueueSize() : position));
     }
 
     private void announceRemove(CommandEvent event, AudioTrack removed) {
