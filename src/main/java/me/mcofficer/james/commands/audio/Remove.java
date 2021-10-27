@@ -21,7 +21,7 @@ public class Remove extends Command {
         if (audio.getVoiceChannel() != null
                 && event.getMember().getVoiceState().getChannel().equals(audio.getVoiceChannel())
                 && audio.getPlayingTrack() != null) {
-            int position = 1;
+            int position;
             try {
                 position = Integer.parseInt(event.getArgs());
             }
