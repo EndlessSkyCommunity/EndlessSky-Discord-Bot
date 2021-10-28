@@ -60,7 +60,7 @@ public class TrackScheduler extends AudioEventAdapter {
             queue.offer(track);
     }
 
-     @Override
+    @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         if(endReason.mayStartNext) {
             if (looping)
