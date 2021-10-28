@@ -113,7 +113,7 @@ public class James {
                 new Eval(lookups, playlists, cfg),
                 new Play(audio), new Stop(audio), new Skip(audio), new Shuffle(audio), new Current(audio),
                 new Pause(audio), new Unpause(audio), new Queue(audio), new Playlist(audio, playlists),
-                new SwizzleImage(), new Template(),
+                new SwizzleImage(), new Template(), new CRConvert(),
                 new Cat(), new Dog(), new Birb(), new Translate(new Translator(okHttpClient)),
                 new Info(githubToken), new Ping(),
                 new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups),
