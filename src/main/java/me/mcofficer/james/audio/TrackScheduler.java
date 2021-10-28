@@ -15,7 +15,6 @@ public class TrackScheduler extends AudioEventAdapter {
     private final LinkedList<AudioTrack> queue = new LinkedList<>();
     
     private boolean looping;
-    private AudioTrack trackToLoop;
 
     public TrackScheduler(AudioPlayer player) {
         this.player = player;
@@ -48,7 +47,6 @@ public class TrackScheduler extends AudioEventAdapter {
      * @param track
      */
     public void play(AudioTrack track) {
-        trackToLoop = track;
         player.playTrack(track);
     }
 
@@ -64,7 +62,7 @@ public class TrackScheduler extends AudioEventAdapter {
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         if(endReason.mayStartNext) {
             if (looping)
-                play(trackToLoop);
+                play(track);
             else
                 skip();
         }
