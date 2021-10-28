@@ -168,6 +168,23 @@ public class Audio {
         event.reply(embedBuilder.build());
     }
 
+    public void remove(CommandEvent event, int position) {
+        announceRemove(event, trackScheduler.remove(position == -1 ? trackScheduler.getQueueSize() : position));
+    }
+
+    private void announceRemove(CommandEvent event, AudioTrack removed) {
+        EmbedBuilder embedBuilder = createEmbedTemplate(event.getGuild());
+        if (removed == null)
+            embedBuilder.setDescription(String.format("No track removed. There are only %s tracks in the queue!", trackScheduler.getQueueSize()));
+        else
+            embedBuilder.setDescription(String.format("Removed a track from the queue\n(requested by %s)", event.getMember().getAsMention()));
+        event.reply(embedBuilder.build());
+    }
+
+    public void announceInvalidRemove(CommandEvent event) {
+        event.reply(createEmbedTemplate(event.getGuild()).setDescription(String.format("That's not a valid number!")).build());
+    }
+
     /**
      * @return the VoiceChannel the bot is connected to, or null if it's not connected at all.
      */
