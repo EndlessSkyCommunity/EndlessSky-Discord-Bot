@@ -13,8 +13,6 @@ import java.util.List;
 
 public class Showdata extends ShowCommand {
 
-    private final Lookups lookups;
-
     public Showdata(Lookups lookups) {
         name = "showdata";
         help = "Outputs the data associated with <query>.";
