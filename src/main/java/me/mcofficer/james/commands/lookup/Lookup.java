@@ -14,8 +14,6 @@ import java.util.List;
 
 public class Lookup extends ShowCommand {
 
-    private final Lookups lookups;
-
     public Lookup(Lookups lookups) {
         name = "lookup";
         help = "Outputs the image and description of <query>.";
@@ -24,19 +22,8 @@ public class Lookup extends ShowCommand {
         this.lookups = lookups;
     }
 
-    @Override
-    protected void execute(CommandEvent event) {
-        List<DataNode> matches = lookups.getNodesByString(event.getArgs());
-
-        if (matches.size() < 1)
-            event.reply("Found no matches for `" + event.getArgs() + "`!");
-        else if (matches.size() == 1)
-            event.reply(createLookupMessage(matches.get(0), event.getGuild()));
-        else
-            Util.displayNodeSearchResults(matches, event, (message, integer) -> event.reply(createLookupMessage(matches.get(integer - 1), event.getGuild())));
-    }
-
-    private MessageEmbed createLookupMessage(DataNode node, Guild guild) {
+    protected void reply(DataNode node, CommandEvent event) {
+        Guild guild = event.getGuild();
         EmbedBuilder embedBuilder = embedImageByNode(node, guild, lookups, true);
         String description = lookups.getDescription(node);
         
@@ -47,6 +34,6 @@ public class Lookup extends ShowCommand {
 
         embedBuilder.appendDescription("\n\n" + lookups.getLinks(node));
 
-        return embedBuilder.build();
+        event.reply(embedBuilder.build());
     }
 }
