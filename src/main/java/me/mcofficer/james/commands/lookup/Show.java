@@ -16,11 +16,11 @@ import java.util.List;
 public class Show extends ShowCommand {
 
     public Show(Lookups lookups) {
+        super(lookups);
         name = "show";
         help = "Outputs the image and data associated with <query>.";
         arguments = "<query>";
         category = James.lookup;
-        this.lookups = lookups;
     }
 
     protected void reply(DataNode node, CommandEvent event) {
