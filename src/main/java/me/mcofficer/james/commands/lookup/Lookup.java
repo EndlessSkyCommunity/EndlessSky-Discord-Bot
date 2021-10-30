@@ -15,11 +15,11 @@ import java.util.List;
 public class Lookup extends ShowCommand {
 
     public Lookup(Lookups lookups) {
+        super(lookups);
         name = "lookup";
         help = "Outputs the image and description of <query>.";
         arguments = "<query>";
         category = James.lookup;
-        this.lookups = lookups;
     }
 
     protected void reply(DataNode node, CommandEvent event) {
