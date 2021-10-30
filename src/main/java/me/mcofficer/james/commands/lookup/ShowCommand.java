@@ -18,6 +18,7 @@ public abstract class ShowCommand extends Command {
     protected final Lookups lookups;
     
     public ShowCommand(Lookups lookups) {
+        super();
         this.lookups = lookups;
     }
 
