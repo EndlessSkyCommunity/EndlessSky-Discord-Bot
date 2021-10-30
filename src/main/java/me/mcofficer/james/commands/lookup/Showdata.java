@@ -14,11 +14,11 @@ import java.util.List;
 public class Showdata extends ShowCommand {
 
     public Showdata(Lookups lookups) {
+        super(lookups);
         name = "showdata";
         help = "Outputs the data associated with <query>.";
         arguments = "<query>";
         category = James.lookup;
-        this.lookups = lookups;
     }
 
     protected void reply(DataNode node, CommandEvent event) {
