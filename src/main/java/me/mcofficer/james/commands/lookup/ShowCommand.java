@@ -15,7 +15,11 @@ import java.util.List;
 
 public abstract class ShowCommand extends Command {
 
-    protected Lookups lookups;
+    protected final Lookups lookups;
+    
+    public ShowCommand(Lookups lookups) {
+        this.lookups = lookups;
+    }
 
     @Override
     protected void execute(CommandEvent event) {
