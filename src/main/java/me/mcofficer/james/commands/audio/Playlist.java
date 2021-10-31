@@ -3,19 +3,14 @@ package me.mcofficer.james.commands.audio;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import me.mcofficer.james.James;
-import me.mcofficer.james.JamesSlashCommand;
-import me.mcofficer.james.Util;
 import me.mcofficer.james.audio.Audio;
 import me.mcofficer.james.audio.Playlists;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.io.IOException;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,13 +23,15 @@ public class Playlist extends AudioCommand {
     public Playlist(Audio audio, Playlists playlists) {
         super(audio);
         name = "playlist";
-        help = "Saves URLs as playlists, to be quickly accessible. Each playlist is associated with a key.\n" +
-                "`-playlist X` plays a playlist X.\n" +
-                "`-playlist list` shows all available playlists.\n" +
-                "`-playlist save X U` saves the URL U under the key X.\n" +
-                "`-playlist delete X` deletes the playlist X, if you are the owner of X.\n" +
-                "`-playlist edit X U` updates the playlist X with the URL U.\n" +
-                "`-playlist info X` Shows the URL and Owner of the playlist X.\n";
+        /*help = "Saves URLs as playlists, to be quickly accessible. Each playlist is associated with a key.\n" +
+         *       "`-playlist X` plays a playlist X.\n" +
+         *       "`-playlist list` shows all available playlists.\n" +
+         *       "`-playlist save X U` saves the URL U under the key X.\n" +
+         *       "`-playlist delete X` deletes the playlist X, if you are the owner of X.\n" +
+         *       "`-playlist edit X U` updates the playlist X with the URL U.\n" +
+         *       "`-playlist info X` Shows the URL and Owner of the playlist X.\n";
+         */
+        help = "Everything you could want to do with playlists!";
         arguments = "[list|save|delete|edit|info] [X [U]]";
         this.playlists = playlists;
 
@@ -58,10 +55,19 @@ public class Playlist extends AudioCommand {
             this.playlists = playlists;
         }
 
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            try {
+                doPlaylistCommand(event);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                event.reply("There was an error accessing the playlists file.").queue();
+            }
+        }
 
+        protected abstract void doPlaylistCommand(SlashCommandEvent event) throws IOException;
     }
-    @Override
-    protected void execute(SlashCommandEvent event) {}
 
     private static class PlayPlaylist extends PlaylistCommand {
         private static final String optionName = "playlist";
@@ -75,8 +81,7 @@ public class Playlist extends AudioCommand {
             this.options = data;
         }
 
-        @Override
-        protected void execute(SlashCommandEvent event) {
+        protected void doPlaylistCommand(SlashCommandEvent event) throws IOException {
             audio.connect(event.getMember().getVoiceState().getChannel());
             String playList = event.getOption(optionName).getAsString();
             audio.loadItem(playlists.getPlaylistUrl(playList), event);
@@ -87,21 +92,15 @@ public class Playlist extends AudioCommand {
     }
 
     private static class ListPlaylist extends PlaylistCommand {
+
         public ListPlaylist(Audio audio, Playlists playlists) {
             super(audio, playlists);
             this.name = "list";
             this.help = "Shows all available playlists.";
         }
-        @Override
-        protected void execute(SlashCommandEvent event) {
-            List<String> keys;
-            try {
-                keys = playlists.getKeys();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
+
+        protected void doPlaylistCommand(SlashCommandEvent event) throws IOException {
+            List<String> keys = playlists.getKeys();
             StringBuilder stringBuilder = new StringBuilder();
 
             for (String key : keys)
@@ -132,20 +131,14 @@ public class Playlist extends AudioCommand {
             this.options = data;
         }
 
-        @Override
-        protected void execute(SlashCommandEvent event) {
-            try {
-                String key = event.getOption(optionNameKey).getAsString();
-                String url = event.getOption(optionNameUrl).getAsString();
-                if (playlists.keyExists(key))
-                    event.reply("A playlist with key `" + key + "` already exists!");
-                else {
-                    playlists.addPlaylist(key, url, event.getMember().getId());
-                    event.reply("Saved playlist as `" + key + "`");
-                }
-            }
-            catch (IOException e) {
-                e.printStackTrace();
+        protected void doPlaylistCommand(SlashCommandEvent event) throws IOException {
+            String key = event.getOption(optionNameKey).getAsString();
+            String url = event.getOption(optionNameUrl).getAsString();
+            if (playlists.keyExists(key))
+                event.reply("A playlist with key `" + key + "` already exists!").queue();
+            else {
+                playlists.addPlaylist(key, url, event.getMember().getId());
+                event.reply("Saved playlist as `" + key + "`").queue();
             }
         }
 
@@ -166,19 +159,13 @@ public class Playlist extends AudioCommand {
             this.options = data;
         }
 
-        @Override
-        protected void execute(SlashCommandEvent event) {
+        protected void doPlaylistCommand(SlashCommandEvent event) throws IOException {
             String key = event.getOption(optionName).getAsString();
-            try {
-                if (!playlists.isOwner(key, event.getMember().getId()))
-                    event.reply("You're not the Owner of this playlist!");
-                else {
-                    playlists.removePlaylist(key);
-                    event.reply("Playlist `" + key + "` has been removed.");
-                }
-            }
-            catch (IOException e) {
-                e.printStackTrace();
+            if (!playlists.isOwner(key, event.getMember().getId()))
+                event.reply("You're not the Owner of this playlist!").queue();
+            else {
+                playlists.removePlaylist(key);
+                event.reply("Playlist `" + key + "` has been removed.").queue();
             }
         }
 
@@ -201,20 +188,14 @@ public class Playlist extends AudioCommand {
             this.options = data;
         }
 
-        @Override
-        protected void execute(SlashCommandEvent event) {
+        protected void doPlaylistCommand(SlashCommandEvent event) throws IOException {
             String key = event.getOption(optionNameKey).getAsString();
             String url = event.getOption(optionNameUrl).getAsString();
-            try {
-                if (!playlists.isOwner(key, event.getMember().getId()))
-                    event.reply("You're not the Owner of this playlist!");
-                else {
-                    playlists.changePlaylistUrl(key, url);
-                    event.reply("Playlist `" + key + "` has been edited.");
-                }
-            }
-            catch (IOException e) {
-                e.printStackTrace();
+            if (!playlists.isOwner(key, event.getMember().getId()))
+                event.reply("You're not the Owner of this playlist!").queue();
+            else {
+                playlists.changePlaylistUrl(key, url);
+                event.reply("Playlist `" + key + "` has been edited.").queue();
             }
         }
 
@@ -236,22 +217,16 @@ public class Playlist extends AudioCommand {
             this.options = data;
         }
 
-        @Override
-        protected void execute(SlashCommandEvent event) {
+        protected void doPlaylistCommand(SlashCommandEvent event) throws IOException {
             String key = event.getOption(optionName).getAsString();
-            try {
-                Map.Entry<String, String> info = playlists.getPlaylistInfo(key);
-                event.getJDA().retrieveUserById(info.getValue()).queue(user -> {
-                    EmbedBuilder embedBuilder = new EmbedBuilder()
-                            .setTitle("EndlessSky-Discord-Bot", James.GITHUB_URL)
-                            .setColor(event.getGuild().getSelfMember().getColor())
-                            .setDescription(String.format("Key: `%s`\nURL: %s\n Owner: %s", key, info.getKey(), user.getAsMention()));
-                    event.replyEmbeds(embedBuilder.build()).queue();
-                });
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+            Map.Entry<String, String> info = playlists.getPlaylistInfo(key);
+            event.getJDA().retrieveUserById(info.getValue()).queue(user -> {
+                EmbedBuilder embedBuilder = new EmbedBuilder()
+                        .setTitle("EndlessSky-Discord-Bot", James.GITHUB_URL)
+                        .setColor(event.getGuild().getSelfMember().getColor())
+                        .setDescription(String.format("Key: `%s`\nURL: %s\n Owner: %s", key, info.getKey(), user.getAsMention()));
+                event.replyEmbeds(embedBuilder.build()).queue();
+            });
         }
 
         protected void doCommand(CommandEvent event) {}
@@ -289,7 +264,7 @@ public class Playlist extends AudioCommand {
 
     }
 
-    private void play(CommandEvent event) {
+    private void play(CommandEvent event) throws IOException {
         audio.connect(event.getMember().getVoiceState().getChannel());
         audio.loadItem(playlists.getPlaylistUrl(event.getArgs()), event);
     }
