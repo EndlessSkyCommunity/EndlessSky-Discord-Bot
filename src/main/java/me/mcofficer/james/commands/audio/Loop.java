@@ -1,27 +1,31 @@
 package me.mcofficer.james.commands.audio;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import me.mcofficer.james.James;
 import me.mcofficer.james.audio.Audio;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-public class Loop extends Command {
+import java.util.ArrayList;
+import java.util.List;
 
-    private final Audio audio;
+public class Loop extends AudioCommand {
+
+    private final String optionName = "loop";
 
     public Loop(Audio audio) {
+        super(audio);
         name = "loop";
-        help = "Controls whether or not to loo the current track.\nNo argument returns whether or not looping is currently on.\n`-loop on` will turn looping on if it isn't already.\n`-loop off` will turn looping off if it isn't already.";
-        category = James.audio;
+        help = "Checks if and controls whether looping is on or off.";
         this.aliases = new String[]{"repeat"};
-        this.audio = audio;
+
+        List<OptionData> data = new ArrayList<>();
+        data.add(new OptionData(OptionType.BOOLEAN, optionName, "Turn looping on or off? Leave blank to check current setting.").setRequired(false));
+        this.options = data;
     }
 
-    @Override
-    protected void execute(CommandEvent event) {
-        if (audio.getVoiceChannel() != null
-                && event.getMember().getVoiceState().getChannel().equals(audio.getVoiceChannel())
-                && audio.getPlayingTrack() != null) {
+    protected void doCommand(CommandEvent event) {
+        if (audio.getPlayingTrack() != null) {
             String args = event.getArgs();
             if (args.length() == 0) {
                 audio.getLoop(event);
@@ -32,6 +36,17 @@ public class Loop extends Command {
                     audio.setLoop(event, true);
                 else if (arg.equals("off"))
                     audio.setLoop(event, false);
+            }
+        }
+    }
+
+    protected void doCommand(SlashCommandEvent event) {
+        if (audio.getPlayingTrack() != null) {
+            if (!event.getOptions().isEmpty()) {
+                audio.getLoop(event);
+            }
+            else {
+                audio.setLoop(event);
             }
         }
     }
