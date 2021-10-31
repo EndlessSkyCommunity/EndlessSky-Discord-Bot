@@ -2,6 +2,7 @@ package me.mcofficer.james;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import me.mcofficer.esparser.DataFile;
 import me.mcofficer.james.audio.Audio;
@@ -73,7 +74,7 @@ public class James {
                 .setPrefix("-")
                 .setActivity(net.dv8tion.jda.api.entities.Activity.listening("-help"))
                 .setOwnerId("177733454824341505"); // yep, that's me
-        addCommands(clientBuilder, cfg.getProperty("github"));
+        setup(clientBuilder, cfg.getProperty("github"));
 
         clientBuilder.setHelpConsumer(new Help(clientBuilder.build())); // this HAS to be done after adding all Commands!
 
@@ -83,6 +84,58 @@ public class James {
                 .addEventListeners(clientBuilder.build(), eventWaiter)
                 .build()
                 .awaitReady();
+    }
+
+    private void setup(CommandClientBuilder builder, String githubToken) throws IOException {
+        log.info("Downloading game data...");
+        ArrayList<File> paths = Util.fetchGameData(githubToken);
+        ArrayList<DataFile> dataFiles = new ArrayList<>();
+        for (File path : paths)
+            dataFiles.add(new DataFile(path.getAbsolutePath()));
+        
+        log.info("Fetching image paths...");
+        ArrayList<String> imagePaths = Util.get1xImagePaths(githubToken);
+        Lookups lookups = new Lookups(okHttpClient, dataFiles, imagePaths);
+        log.info("Lookups instantiated");
+
+        log.info("Starting background thread to fetch hdpi image paths...");
+        new Thread(() -> {
+            lookups.setImagePaths(Util.get2xImagePaths(imagePaths));
+            log.info("Hdpi image paths fetched successfully.");
+        }).start();
+
+        Audio audio = new Audio();
+        Playlists playlists = new Playlists();
+
+        String[] optinRoles = cfg.getProperty("optinRoles").split(",");
+        String[] ontopicCategories = cfg.getProperty("ontopicCategories").split(",");
+        String timeoutRole = cfg.getProperty("timeoutRole");
+        builder.addCommands(getCommands(lookups, audio, playlists, optinRoles, ontopicCategories, timeoutRole, githubToken));
+        builder.addSlashCommands(getSlashCommands(lookups, audio, playlists));
+    }
+
+    private Command[] getCommands(Lookups lookups, Audio audio, Playlists playlists, String[] optinRoles, String[] ontopicCategories, String timeoutRole, String githubToken) {
+        Command[] commands = {
+                new Eval(lookups, playlists, cfg),
+                new Play(audio), new Stop(audio), new Loop(audio), new Skip(audio), new Remove(audio), new Shuffle(audio), new Current(audio),
+                new Pause(audio), new Unpause(audio), new Queue(audio), new Playlist(audio, playlists),
+                new SwizzleImage(), new Template(), new CRConvert(),
+                new Cat(), new Dog(), new Birb(), new Translate(new Translator(okHttpClient)),
+                new Info(githubToken), new Ping(),
+                new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups),
+                new Purge(), new Optin(optinRoles, timeoutRole), new Optout(optinRoles),
+                new Timeout(timeoutRole), new Activity(ontopicCategories), new Move()
+        };
+        return commands;
+    }
+
+    private SlashCommand[] getSlashCommands(Lookups lookups, Audio audio, Playlists playlists) {
+        SlashCommand[] slashCommands = {
+                new Play(audio), new Stop(audio), new Loop(audio), new Skip(audio), new Remove(audio), new Shuffle(audio), new Current(audio),
+                new Pause(audio), new Unpause(audio), new Queue(audio), new Playlist(audio, playlists),
+                new Issue(), new Commit(), new Lookup(lookups), new Show(lookups), new Showdata(lookups), new Showimage(lookups), new Swizzle(lookups)
+        };
+        return slashCommands;
     }
 
     private void addCommands(CommandClientBuilder builder, String githubToken) throws IOException {
@@ -116,7 +169,7 @@ public class James {
                 new SwizzleImage(), new Template(), new CRConvert(),
                 new Cat(), new Dog(), new Birb(), new Translate(new Translator(okHttpClient)),
                 new Info(githubToken), new Ping(),
-                new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups),
+                //new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups),
                 new Purge(), new Optin(optinRoles, cfg.getProperty("timeoutRole")), new Optout(optinRoles),
                 new Timeout(cfg.getProperty("timeoutRole")), new Activity(ontopicCategories), new Move()
         );

@@ -5,6 +5,7 @@ import com.jagrosh.jdautilities.menu.OrderedMenu;
 import me.mcofficer.esparser.DataNode;
 import me.mcofficer.esparser.Sources;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -182,15 +183,29 @@ public class Util {
      * @param selection A BiConsumer that gets called once the user makes a selection.
      */
     public static void displayNodeSearchResults(List<DataNode> matches, CommandEvent event, BiConsumer<Message, Integer> selection) {
+        Guild guild = event.getGuild();
+        User author = event.getAuthor();
+        MessageChannel channel = event.getChannel();
+        displayNodeSearchResultsHelper(matches, guild, author, channel, selection);
+    }
+
+    public static void displayNodeSearchResults(List<DataNode> matches, SlashCommandEvent event, BiConsumer<Message, Integer> selection) {
+        Guild guild = event.getGuild();
+        User author = event.getUser();
+        MessageChannel channel = event.getChannel();
+        displayNodeSearchResultsHelper(matches, guild, author, channel, selection);
+    }
+
+    private static void displayNodeSearchResultsHelper(List<DataNode> matches, Guild guild, User author, MessageChannel channel, BiConsumer<Message, Integer> selection) {
         OrderedMenu.Builder builder = new OrderedMenu.Builder()
                 .setEventWaiter(James.eventWaiter)
                 .setSelection(selection)
-                .setUsers(event.getAuthor())
+                .setUsers(author)
                 .useCancelButton(true)
                 .setDescription("**Found the following Nodes:**")
-                .setColor(event.getGuild().getSelfMember().getColor());
+                .setColor(guild.getSelfMember().getColor());
         matches.forEach(node -> builder.addChoice(String.join(" ", node.getTokens())));
-        builder.build().display(event.getChannel());
+        builder.build().display(channel);
     }
 
     /** Saves the ES data files and returns the temporary directory they were saved in. Should be removed afterwards.
