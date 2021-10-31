@@ -10,39 +10,34 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+
+import net.dv8tion.jda.api.entities.*;
 
 import java.util.List;
 
 public class Show extends ShowCommand {
 
-    private final Lookups lookups;
-
     public Show(Lookups lookups) {
-        name = "show";
-        help = "Outputs the image and data associated with <query>.";
-        arguments = "<query>";
-        category = James.lookup;
-        this.lookups = lookups;
+        super(lookups);
+        this.name = "show";
+        this.help = "Outputs the image and data associated with <query>.";
+        this.arguments = "<query>";
     }
 
-    @Override
-    protected void execute(CommandEvent event) {
-    List<DataNode> matches = lookups.getNodesByString(event.getArgs());
-
-    if (matches.size() < 1)
-        event.reply("Found no matches for `" + event.getArgs() + "`!");
-    else if (matches.size() == 1)
-        event.reply(createShowMessage(matches.get(0), event));
-    else
-        Util.displayNodeSearchResults(matches, event, (((message, integer) -> event.reply(createShowMessage(matches.get(integer - 1), event)))));
-    }
-
-    private Message createShowMessage(DataNode node, CommandEvent event) {
-        Guild guild = event.getGuild();
-        EmbedBuilder embedBuilder = embedImageByNode(node, guild, lookups, false);
-        return new MessageBuilder()
+    protected void reply(DataNode node, CommandEvent event) {
+        EmbedBuilder embedBuilder = embedImageByNode(node, event.getGuild(), lookups, false);
+        event.reply(new MessageBuilder()
                 .setEmbed(embedBuilder.isEmpty() ? null : embedBuilder.build()) // if no image was found, the embed builder cannot be built
                 .append(Util.sendInChunksReturnLast(event.getTextChannel(), lookups.getNodeAsText(node).split("(?=\n)")))
-                .build();
+                .build());
+    }
+
+    protected void reply(DataNode node, SlashCommandEvent event) {
+        EmbedBuilder embedBuilder = embedImageByNode(node, event.getGuild(), lookups, false);
+        event.reply(new MessageBuilder()
+                .setEmbed(embedBuilder.isEmpty() ? null : embedBuilder.build()) // if no image was found, the embed builder cannot be built
+                .append(Util.sendInChunksReturnLast(event.getTextChannel(), lookups.getNodeAsText(node).split("(?=\n)")))
+                .build()).queue();
     }
 }
