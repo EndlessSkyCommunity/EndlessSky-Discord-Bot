@@ -17,6 +17,7 @@ public class Info extends JamesSlashCommand {
     private String commit;
 
     public Info(String githubToken) {
+        super();
         name = "info";
         help = "Shows information about the bot.";
         category = James.info;
