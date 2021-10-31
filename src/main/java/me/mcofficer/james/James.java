@@ -111,7 +111,7 @@ public class James {
         String[] ontopicCategories = cfg.getProperty("ontopicCategories").split(",");
         String timeoutRole = cfg.getProperty("timeoutRole");
         builder.addCommands(getCommands(lookups, audio, playlists, optinRoles, ontopicCategories, timeoutRole, githubToken));
-        builder.addSlashCommands(getSlashCommands(lookups, audio, playlists));
+        builder.addSlashCommands(getSlashCommands(lookups, audio, playlists, optinRoles, ontopicCategories, timeoutRole, githubToken));
     }
 
     private Command[] getCommands(Lookups lookups, Audio audio, Playlists playlists, String[] optinRoles, String[] ontopicCategories, String timeoutRole, String githubToken) {
@@ -129,10 +129,12 @@ public class James {
         return commands;
     }
 
-    private SlashCommand[] getSlashCommands(Lookups lookups, Audio audio, Playlists playlists) {
+    private SlashCommand[] getSlashCommands(Lookups lookups, Audio audio, Playlists playlists, String[] optinRoles, String[] ontopicCategories, String timeoutRole, String githubToken) {
         SlashCommand[] slashCommands = {
                 new Play(audio), new Stop(audio), new Loop(audio), new Skip(audio), new Remove(audio), new Shuffle(audio), new Current(audio),
                 new Pause(audio), new Unpause(audio), new Queue(audio), new Playlist(audio, playlists),
+                new Template(), new CRConvert(),
+                new Info(githubToken), new Ping(),
                 new Issue(), new Commit(), new Lookup(lookups), new Show(lookups), new Showdata(lookups), new Showimage(lookups), new Swizzle(lookups)
         };
         return slashCommands;
