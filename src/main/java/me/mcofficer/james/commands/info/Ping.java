@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 public class Ping extends JamesSlashCommand {
 
     public Ping() {
+        super();
         name = "ping";
         help = "Displays the time of the bot's last heartbeat.";
         category = James.info;
