@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.CheckForNull;
 import java.util.Collections;
@@ -16,7 +17,7 @@ public class TrackScheduler extends AudioEventAdapter {
     
     private boolean looping;
 
-    public TrackScheduler(AudioPlayer player) {
+    public TrackScheduler(@NotNull AudioPlayer player) {
         this.player = player;
         player.addListener(this);
         looping = false;

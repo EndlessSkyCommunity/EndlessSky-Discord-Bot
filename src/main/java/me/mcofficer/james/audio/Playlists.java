@@ -39,8 +39,14 @@ public class Playlists {
         return readFile().has(key);
     }
 
-    public String getPlaylistUrl(String key) throws IOException, JSONException {
-        return readFile().getJSONObject(key).getString("url");
+    public String getPlaylistUrl(String key) throws JSONException {
+        try {
+            return readFile().getJSONObject(key).getString("url");
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public Map.Entry<String, String> getPlaylistInfo(String key) throws IOException, JSONException {
