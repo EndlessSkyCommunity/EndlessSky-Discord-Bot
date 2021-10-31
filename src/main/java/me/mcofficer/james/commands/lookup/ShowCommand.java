@@ -59,6 +59,25 @@ public abstract class ShowCommand extends JamesSlashCommand {
             Util.displayNodeSearchResults(matches, (SlashCommandEvent)event, ((message, integer) -> reply(matches.get(integer - 1), event)));
     }
 
+    protected final Lookups lookups;
+    
+    public ShowCommand(Lookups lookups) {
+        super();
+        this.lookups = lookups;
+    }
+
+    @Override
+    protected void execute(CommandEvent event) {
+        List<DataNode> matches = lookups.getNodesByString(event.getArgs());
+
+        if (matches.size() < 1)
+            event.reply("Found no matches for `" + event.getArgs() + "`!");
+        else if (matches.size() == 1)
+            reply(matches.get(0), event);
+        else
+            Util.displayNodeSearchResults(matches, event, ((message, integer) -> reply(matches.get(integer - 1), event)));
+    }
+
     protected EmbedBuilder embedImageByNode(DataNode node, Guild guild, Lookups lookups, boolean thumbnail) {
         String imageToEmbedUrl = lookups.getImageUrl(node, thumbnail);
         EmbedBuilder embedBuilder = new EmbedBuilder()
@@ -69,6 +88,8 @@ public abstract class ShowCommand extends JamesSlashCommand {
             embedBuilder.setImage(imageToEmbedUrl);
         return embedBuilder;
     }
+    
+    protected abstract void reply(DataNode node, CommandEvent event);
 
     protected abstract void reply(DataNode node, CommandEvent event);
 
