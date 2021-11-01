@@ -5,23 +5,28 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import me.mcofficer.james.James;
 import me.mcofficer.james.Util;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class Optin extends Command {
-
-    private final String[] optinRoles;
-    private final String sTimeoutRole;
+public class Optin extends OptRoleCommand {
 
     public Optin(String[] optinRoles, String timeoutRole) {
+        super(optinRoles, timeoutRole);
         name = "optin";
-        help = "Adds the user to one or more roles X (, Y, Z). A list of free-to-join roles can be found in the rules.";
+        help = "Adds the user to one or more roles X (, Y, Z)."; //A list of free-to-join roles can be found in the rules.";
         arguments = "X [Y Z]";
-        category = James.moderation;
-        this.optinRoles = optinRoles;
-        sTimeoutRole = timeoutRole;
+    }
+
+    protected void updateRoles(SlashCommandEvent event) {
+        List<Role> newRoles = new ArrayList<>(event.getMember().getRoles());
+        String rolesRequested = event.getOptions().toString();
+        newRoles.addAll(Util.getOptinRolesByQuery(rolesRequested, event.getGuild(), optinRoles));
+        event.getGuild().modifyMemberRoles(event.getMember(), newRoles).queue(success1 ->
+                event.reply("Roles added successfully!").queue()
+        );
     }
 
     @Override
