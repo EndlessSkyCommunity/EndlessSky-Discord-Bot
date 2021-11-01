@@ -135,7 +135,9 @@ public class James {
                 new Pause(audio), new Unpause(audio), new Queue(audio), new Playlist(audio, playlists),
                 new Template(), new CRConvert(),
                 new Info(githubToken), new Ping(),
-                new Issue(), new Commit(), new Lookup(lookups), new Show(lookups), new Showdata(lookups), new Showimage(lookups), new Swizzle(lookups)
+                new Issue(), new Commit(), new Lookup(lookups), new Show(lookups), new Showdata(lookups), new Showimage(lookups), new Swizzle(lookups),
+                new Purge(), new Optin(optinRoles, timeoutRole), new Optout(optinRoles, timeoutRole),
+                new Timeout(timeoutRole), new Activity(ontopicCategories), new Move()
         };
         return slashCommands;
     }
