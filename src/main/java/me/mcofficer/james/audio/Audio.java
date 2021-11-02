@@ -90,14 +90,10 @@ public class Audio {
             }
 
             @Override
-            public void noMatches() {
-
-            }
+            public void noMatches() {}
 
             @Override
-            public void loadFailed(FriendlyException exception) {
-
-            }
+            public void loadFailed(FriendlyException exception) {}
         });
     }
 
@@ -123,14 +119,10 @@ public class Audio {
             }
 
             @Override
-            public void noMatches() {
-
-            }
+            public void noMatches() {}
 
             @Override
-            public void loadFailed(FriendlyException exception) {
-
-            }
+            public void loadFailed(FriendlyException exception) {}
         });
     }
 
@@ -250,7 +242,7 @@ public class Audio {
     }
 
     public void remove(CommandEvent event, int position) {
-        announceRemove(event, trackScheduler.remove(position == -1 ? trackScheduler.getQueueSize() : position));
+        announceRemove(event, trackScheduler.remove(position == -1 ? trackScheduler.getQueueSize() - 1 : position - 1));
     }
 
     private void announceRemove(@NotNull CommandEvent event, AudioTrack removed) {
@@ -267,7 +259,7 @@ public class Audio {
     }
 
     public void remove(SlashCommandEvent event, int position) {
-        announceRemove(event, trackScheduler.remove(position == -1 ? trackScheduler.getQueueSize() : position));
+        announceRemove(event, trackScheduler.remove(position == -1 ? trackScheduler.getQueueSize() - 1 : position - 1));
     }
 
     private void announceRemove(@NotNull SlashCommandEvent event, AudioTrack removed) {
