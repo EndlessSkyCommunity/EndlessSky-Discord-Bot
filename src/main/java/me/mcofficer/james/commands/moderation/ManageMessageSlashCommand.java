@@ -1,7 +1,6 @@
 package me.mcofficer.james.commands.moderation;
 
 import me.mcofficer.james.Util;
-import me.mcofficer.james.commands.ModerationSlashCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
