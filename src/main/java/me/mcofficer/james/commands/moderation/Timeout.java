@@ -2,7 +2,6 @@ package me.mcofficer.james.commands.moderation;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import me.mcofficer.james.Util;
-import me.mcofficer.james.commands.ModerationSlashCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
