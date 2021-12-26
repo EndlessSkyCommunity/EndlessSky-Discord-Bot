@@ -112,6 +112,9 @@ public class James {
         String timeoutRole = cfg.getProperty("timeoutRole");
         builder.addCommands(getCommands(lookups, audio, playlists, optinRoles, ontopicCategories, timeoutRole, githubToken));
         builder.addSlashCommands(getSlashCommands(lookups, audio, playlists, optinRoles, ontopicCategories, timeoutRole, githubToken));
+        
+        String guildId = cfg.getProperty("guildId");
+        builder.forceGuildOnly(guildId);
     }
 
     private Command[] getCommands(Lookups lookups, Audio audio, Playlists playlists, String[] optinRoles, String[] ontopicCategories, String timeoutRole, String githubToken) {
