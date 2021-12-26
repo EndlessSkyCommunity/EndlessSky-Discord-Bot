@@ -6,7 +6,7 @@ plugins {
 
 mainClassName = 'me.mcofficer.james.James'
 
-version = '2.0-SNAPSHOT'
+version = '3.0-WIP'
 
 repositories {
     mavenCentral()
@@ -16,11 +16,13 @@ repositories {
         name 'm2-dv8tion'
     }
     maven { url 'https://jitpack.io' }
+    maven { url "https://m2.chew.pro/releases" }
 }
 
 dependencies {
-    compile 'net.dv8tion:JDA:4.2.0_172'
-    compile 'com.jagrosh:jda-utilities:3.0.4'
+    compile 'net.dv8tion:JDA:4.3.0_339'
+    //compile 'com.jagrosh:jda-utilities:3.0.4'
+    compile 'pw.chew:jda-chewtils:1.22.0'
     compile 'com.sedmelluq:lavaplayer:1.3.78'
     compile 'com.github.EndlessSkyCommunity:ESParser-java:97ebcf9553'
     compile 'com.github.mpkorstanje:simmetrics-core:4.1.1'

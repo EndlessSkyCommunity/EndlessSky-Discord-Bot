@@ -6,7 +6,6 @@ import org.json.JSONTokener;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,7 +39,7 @@ public class Playlists {
     }
 
     public String getPlaylistUrl(String key) throws IOException, JSONException {
-        return readFile().getJSONObject(key).getString("url");
+            return readFile().getJSONObject(key).getString("url");
     }
 
     public Map.Entry<String, String> getPlaylistInfo(String key) throws IOException, JSONException {

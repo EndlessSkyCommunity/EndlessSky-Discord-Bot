@@ -4,8 +4,8 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.CheckForNull;
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -16,7 +16,7 @@ public class TrackScheduler extends AudioEventAdapter {
     
     private boolean looping;
 
-    public TrackScheduler(AudioPlayer player) {
+    public TrackScheduler(@NotNull AudioPlayer player) {
         this.player = player;
         player.addListener(this);
         looping = false;
@@ -36,10 +36,15 @@ public class TrackScheduler extends AudioEventAdapter {
         play(queue.poll());
     }
 
-    public AudioTrack remove(int position) {
-        if (position > getQueueSize())
+    /**
+     * Removes the track at the position given and returns it as an AudioTrack.
+     * @param index The index of the track in the queue to be removed.
+     * @return The track that was removed as an AudioTrack, or
+     */
+    public AudioTrack remove(int index) {
+        if (index >= getQueueSize() || index < 0)
             return null;
-        return queue.remove(position - 1);
+        return queue.remove(index);
     }
 
     /**
@@ -58,6 +63,12 @@ public class TrackScheduler extends AudioEventAdapter {
             queue.offer(track);
     }
 
+    /**
+     * Called when a track ends. If looping is on, plays the track that just ended, otherwise, calls skip().
+     * @param player The AudioPlayer object.
+     * @param track The track that just ended.
+     * @param endReason The reason the track ended.
+     */
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         if(endReason.mayStartNext) {
@@ -69,7 +80,7 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     /**
-     * Stops Playback and clears the {@link #queue}.
+     * Stops Playback and clears the {@link #queue} and turns looping off.
      */
     public void stop() {
         player.stopTrack();

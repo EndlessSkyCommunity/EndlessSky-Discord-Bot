@@ -9,6 +9,10 @@ import me.mcofficer.james.tools.Lookups;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.MessageBuilder;
+
+import net.dv8tion.jda.api.entities.*;
 
 import java.util.List;
 
@@ -16,15 +20,18 @@ public class Lookup extends ShowCommand {
 
     public Lookup(Lookups lookups) {
         super(lookups);
-        name = "lookup";
-        help = "Outputs the image and description of <query>.";
-        arguments = "<query>";
-        category = James.lookup;
+        this.name = "lookup";
+        this.help = "Outputs the image and description of <query>.";
+
+        //Not supported with slash commands
+        this.arguments = "<query>";
+
+        //New with slash commands
+        
     }
 
     protected void reply(DataNode node, CommandEvent event) {
-        Guild guild = event.getGuild();
-        EmbedBuilder embedBuilder = embedImageByNode(node, guild, lookups, true);
+        EmbedBuilder embedBuilder = embedImageByNode(node, event.getGuild(), lookups, true);
         String description = lookups.getDescription(node);
         
         if (description == null)
@@ -35,5 +42,20 @@ public class Lookup extends ShowCommand {
         embedBuilder.appendDescription("\n\n" + lookups.getLinks(node));
 
         event.reply(embedBuilder.build());
+    }
+
+    protected void reply(DataNode node, SlashCommandEvent event) {
+        EmbedBuilder embedBuilder = embedImageByNode(node, event.getGuild(), lookups, true);
+        String description = lookups.getDescription(node);
+        
+        if (description == null)
+            embedBuilder.appendDescription("Couldn't find a description node!");
+        else
+            embedBuilder.setDescription(description);
+
+        embedBuilder.appendDescription("\n\n" + lookups.getLinks(node));
+
+        event.replyEmbeds(embedBuilder.build()).queue();
+        //event.reply(new MessageBuilder().setEmbeds(embedBuilder.build()).build()).queue();
     }
 }

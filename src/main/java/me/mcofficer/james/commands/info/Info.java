@@ -1,25 +1,47 @@
 package me.mcofficer.james.commands.info;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import me.mcofficer.james.James;
+import me.mcofficer.james.JamesSlashCommand;
 import me.mcofficer.james.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class Info extends Command {
+public class Info extends JamesSlashCommand {
 
     private String commit;
 
     public Info(String githubToken) {
+        super();
         name = "info";
         help = "Shows information about the bot.";
         category = James.info;
         getInfo(githubToken);
+    }
+
+    @Override
+    protected void execute(SlashCommandEvent event) {
+        String description = String.format(
+                "- **Author:** Maximilian Korber\n" +
+                        "- **Language**: Java\n" +
+                        "- **Utilized Libraries:** JDA, JDA-Utilities, ESParser-java\n" +
+                        "- **Maintainers:** M\\*C\\*O, tehhowch\n" +
+                        "\n" +
+                        "**Latest Commit:** %s\n" +
+                        "\n" +
+                        "[View known issues and feature requests](%s)",
+                commit, James.GITHUB_URL + "issues/");
+
+        EmbedBuilder builder = new EmbedBuilder()
+                .setTitle("EndlessSky-Discord-Bot", James.GITHUB_URL)
+                .setColor(event.getGuild().getSelfMember().getColor())
+                .setDescription(description);
+        event.replyEmbeds(builder.build()).queue();
     }
 
     @Override

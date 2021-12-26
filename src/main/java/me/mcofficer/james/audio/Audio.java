@@ -15,7 +15,9 @@ import me.mcofficer.james.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.CheckForNull;
 import java.io.ByteArrayInputStream;
@@ -88,14 +90,39 @@ public class Audio {
             }
 
             @Override
-            public void noMatches() {
+            public void noMatches() {}
 
+            @Override
+            public void loadFailed(FriendlyException exception) {}
+        });
+    }
+
+    public void loadItem(String identifier, SlashCommandEvent event) {
+        playerManager.loadItem(identifier, new AudioLoadResultHandler() {
+            @Override
+            public void trackLoaded(AudioTrack track) {
+                trackScheduler.enqueue(track);
+                announceTrack(track, event);
             }
 
             @Override
-            public void loadFailed(FriendlyException exception) {
-
+            public void playlistLoaded(AudioPlaylist playlist) {
+                if (playlist.isSearchResult()) {
+                    AudioTrack track = playlist.getTracks().get(0);
+                    trackScheduler.enqueue(track);
+                    announceTrack(track, event);
+                }
+                else {
+                    playlist.getTracks().forEach(trackScheduler::enqueue);
+                    announcePlaylist(playlist, event);
+                }
             }
+
+            @Override
+            public void noMatches() {}
+
+            @Override
+            public void loadFailed(FriendlyException exception) {}
         });
     }
 
@@ -103,7 +130,7 @@ public class Audio {
      * @param guild
      * @return an EmbedBuilder with title and color set.
      */
-    private EmbedBuilder createEmbedTemplate(Guild guild) {
+    private @NotNull EmbedBuilder createEmbedTemplate(@NotNull Guild guild) {
         return new EmbedBuilder()
                 .setTitle("Audio-Player", James.GITHUB_URL)
                 .setColor(guild.getSelfMember().getColor());
@@ -114,7 +141,7 @@ public class Audio {
      * @param track
      * @param event
      */
-    private void announceTrack(AudioTrack track, CommandEvent event) {
+    private void announceTrack(@NotNull AudioTrack track, @NotNull CommandEvent event) {
         EmbedBuilder embedBuilder = createEmbedTemplate(event.getGuild())
                 .setDescription(
                         String.format("Queueing `%s` [\uD83D\uDD17](%s)\n(requested by %s)",
@@ -124,12 +151,22 @@ public class Audio {
         event.reply(embedBuilder.build());
     }
 
+    private void announceTrack(@NotNull AudioTrack track, @NotNull SlashCommandEvent event) {
+        EmbedBuilder embedBuilder = createEmbedTemplate(event.getGuild())
+                .setDescription(
+                        String.format("Queueing `%s` [\uD83D\uDD17](%s)\n(requested by %s)",
+                                track.getInfo().title, track.getInfo().uri, event.getMember().getAsMention())
+                )
+                .setThumbnail(getThumbnail(track));
+        event.replyEmbeds(embedBuilder.build()).queue();
+    }
+
     /**
      * Announces that a new Playlist has been enqueued.
      * @param playlist
      * @param event
      */
-    private void announcePlaylist(AudioPlaylist playlist, CommandEvent event) {
+    private void announcePlaylist(@NotNull AudioPlaylist playlist, @NotNull CommandEvent event) {
         EmbedBuilder embedBuilder = createEmbedTemplate(event.getGuild())
                 .setDescription(
                         String.format("Queueing Playlist `%s` (%s tracks, requested by %s)",
@@ -138,15 +175,36 @@ public class Audio {
                 .setThumbnail(James.GITHUB_RAW_URL + "thumbnails/play.png");
         event.reply(embedBuilder.build());
     }
+
+    private void announcePlaylist(@NotNull AudioPlaylist playlist, @NotNull SlashCommandEvent event) {
+        EmbedBuilder embedBuilder = createEmbedTemplate(event.getGuild())
+                .setDescription(
+                        String.format("Queueing Playlist `%s` (%s tracks, requested by %s)",
+                                playlist.getName(), playlist.getTracks().size(), event.getMember().getAsMention())
+                )
+                .setThumbnail(James.GITHUB_RAW_URL + "thumbnails/play.png");
+        event.replyEmbeds(embedBuilder.build()).queue();
+    }
     
-    public void getLoop(CommandEvent event) {
+    public void getLoop(@NotNull CommandEvent event) {
         boolean looping = trackScheduler.getLooping();
         event.reply(createEmbedTemplate(event.getGuild()).setDescription("Currently " + (looping ? "" : "not ") + "looping.").build());
     }
 
-    public void setLoop(CommandEvent event, boolean loop) {
+    public void getLoop(@NotNull SlashCommandEvent event) {
+        boolean looping = trackScheduler.getLooping();
+        event.replyEmbeds(createEmbedTemplate(event.getGuild()).setDescription("Currently " + (looping ? "" : "not ") + "looping.").build()).queue();
+    }
+
+    public void setLoop(@NotNull CommandEvent event, boolean loop) {
         trackScheduler.setLooping(loop);
         event.reply(createEmbedTemplate(event.getGuild()).setDescription("Turned looping " + (loop ? "on" : "off") + ".").build());
+    }
+
+    public void setLoop(@NotNull SlashCommandEvent event) {
+        boolean loop = event.getOptions().get(0).getAsBoolean();
+        trackScheduler.setLooping(loop);
+        event.replyEmbeds(createEmbedTemplate(event.getGuild()).setDescription("Turned looping " + (loop ? "on" : "off") + ".").build()).queue();
     }
 
     /** Skips a number of Tracks and announces it.
@@ -168,11 +226,26 @@ public class Audio {
         event.reply(embedBuilder.build());
     }
 
-    public void remove(CommandEvent event, int position) {
-        announceRemove(event, trackScheduler.remove(position == -1 ? trackScheduler.getQueueSize() : position));
+    public void skip(SlashCommandEvent event, int amount) {
+        for (int i = 0; i < amount; i++)
+            trackScheduler.skip();
+        announceSkip(event, amount);
     }
 
-    private void announceRemove(CommandEvent event, AudioTrack removed) {
+    private void announceSkip(SlashCommandEvent event, int amount) {
+        EmbedBuilder embedBuilder = createEmbedTemplate(event.getGuild())
+                .setDescription(
+                        String.format("Skipped %s track(s)\n(requested by %s)", amount, event.getMember().getAsMention())
+                )
+                .setThumbnail(James.GITHUB_RAW_URL + "thumbnails/skip.png");
+        event.replyEmbeds(embedBuilder.build()).queue();
+    }
+
+    public void remove(CommandEvent event, int position) {
+        announceRemove(event, trackScheduler.remove(position == -1 ? trackScheduler.getQueueSize() - 1 : position - 1));
+    }
+
+    private void announceRemove(@NotNull CommandEvent event, AudioTrack removed) {
         EmbedBuilder embedBuilder = createEmbedTemplate(event.getGuild());
         if (removed == null)
             embedBuilder.setDescription(String.format("No track removed. There are only %s tracks in the queue!", trackScheduler.getQueueSize()));
@@ -181,8 +254,25 @@ public class Audio {
         event.reply(embedBuilder.build());
     }
 
-    public void announceInvalidRemove(CommandEvent event) {
+    public void announceInvalidRemove(@NotNull CommandEvent event) {
         event.reply(createEmbedTemplate(event.getGuild()).setDescription(String.format("That's not a valid number!")).build());
+    }
+
+    public void remove(SlashCommandEvent event, int position) {
+        announceRemove(event, trackScheduler.remove(position == -1 ? trackScheduler.getQueueSize() - 1 : position - 1));
+    }
+
+    private void announceRemove(@NotNull SlashCommandEvent event, AudioTrack removed) {
+        EmbedBuilder embedBuilder = createEmbedTemplate(event.getGuild());
+        if (removed == null)
+            embedBuilder.setDescription(String.format("No track removed. There are only %s tracks in the queue!", trackScheduler.getQueueSize()));
+        else
+            embedBuilder.setDescription(String.format("Removed a track from the queue\n(requested by %s)", event.getMember().getAsMention()));
+        event.replyEmbeds(embedBuilder.build()).queue();
+    }
+
+    public void announceInvalidRemove(@NotNull SlashCommandEvent event) {
+        event.replyEmbeds(createEmbedTemplate(event.getGuild()).setDescription(String.format("That's not a valid number!")).build()).queue();
     }
 
     /**
@@ -203,6 +293,18 @@ public class Audio {
                 .setDescription(String.format("The Queue has been shuffled by %s", event.getMember().getAsMention()))
                 .setThumbnail(James.GITHUB_RAW_URL + "thumbnails/shuffle.png");
         event.reply(embedBuilder.build());
+    }
+
+    public void shuffle(SlashCommandEvent event) {
+        trackScheduler.shuffle();
+        announceShuffle(event);
+    }
+
+    private void announceShuffle(SlashCommandEvent event) {
+        EmbedBuilder embedBuilder = createEmbedTemplate(event.getGuild())
+                .setDescription(String.format("The Queue has been shuffled by %s", event.getMember().getAsMention()))
+                .setThumbnail(James.GITHUB_RAW_URL + "thumbnails/shuffle.png");
+        event.replyEmbeds(embedBuilder.build()).queue();
     }
 
     /**
@@ -250,6 +352,40 @@ public class Audio {
         }
     }
 
+    public void announceCurrentTrack(SlashCommandEvent event) {
+        AudioTrack track = player.getPlayingTrack();
+        if (track == null)
+            event.reply("Not playing anything!").queue();
+        else {
+            String trackString = String.format("**Playing:** %s [\uD83D\uDD17](%s)\n",
+                    track.getInfo().title, track.getInfo().uri);
+            EmbedBuilder embedBuilder = createEmbedTemplate(event.getGuild())
+                    .setDescription(trackString)
+                    .appendDescription(String.format("**Time:** [%s / %s]",
+                            Util.MilisToTimestring(track.getPosition()),
+                            Util.MilisToTimestring(track.getDuration())))
+                    .setThumbnail(getThumbnail(track));
+
+            event.getTextChannel().sendMessage(embedBuilder.build()).queue(message -> {
+                while (track.equals(getPlayingTrack())) {
+                    embedBuilder.setDescription(trackString)
+                            .appendDescription(String.format("**Time:** [%s / %s]",
+                                    Util.MilisToTimestring(track.getPosition()),
+                                    Util.MilisToTimestring(track.getDuration()))
+                            );
+
+                    message.editMessage(embedBuilder.build()).queue();
+                    try {
+                        TimeUnit.SECONDS.sleep(15);
+                    }
+                    catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+    }
+
     /** Pauses playback and announces it.
      * @param event
      */
@@ -258,12 +394,25 @@ public class Audio {
         announcePause(event);
     }
 
-    private void announcePause(CommandEvent event) {
+    private void announcePause(@NotNull CommandEvent event) {
         EmbedBuilder embedBuilder = createEmbedTemplate(event.getGuild())
                 .setDescription(String.format("The Audio Player has been paused.\n(requested by %s)",
                         event.getMember().getAsMention()))
                 .setThumbnail(James.GITHUB_RAW_URL + "thumbnails/pause.png");
         event.reply(embedBuilder.build());
+    }
+
+    public void pause(SlashCommandEvent event) {
+        player.setPaused(true);
+        announcePause(event);
+    }
+
+    private void announcePause(@NotNull SlashCommandEvent event) {
+        EmbedBuilder embedBuilder = createEmbedTemplate(event.getGuild())
+                .setDescription(String.format("The Audio Player has been paused.\n(requested by %s)",
+                        event.getMember().getAsMention()))
+                .setThumbnail(James.GITHUB_RAW_URL + "thumbnails/pause.png");
+        event.replyEmbeds(embedBuilder.build()).queue();
     }
 
     /** Pauses playback and announces it.
@@ -276,12 +425,27 @@ public class Audio {
         }
     }
 
-    private void announceUnpause(CommandEvent event) {
+    private void announceUnpause(@NotNull CommandEvent event) {
         EmbedBuilder embedBuilder = createEmbedTemplate(event.getGuild())
                 .setDescription(String.format("The Audio Player has been unpaused\n(requested by %s)",
                         event.getMember().getAsMention()))
                 .setThumbnail(James.GITHUB_RAW_URL + "thumbnails/play.png");
         event.reply(embedBuilder.build());
+    }
+
+    public void unpause(SlashCommandEvent event) {
+        if (player.isPaused()) {
+            player.setPaused(false);
+            announceUnpause(event);
+        }
+    }
+
+    private void announceUnpause(@NotNull SlashCommandEvent event) {
+        EmbedBuilder embedBuilder = createEmbedTemplate(event.getGuild())
+                .setDescription(String.format("The Audio Player has been unpaused\n(requested by %s)",
+                        event.getMember().getAsMention()))
+                .setThumbnail(James.GITHUB_RAW_URL + "thumbnails/play.png");
+        event.replyEmbeds(embedBuilder.build()).queue();
     }
 
     /**
@@ -314,12 +478,55 @@ public class Audio {
         }
     }
 
+    public void createQueueEmbed(SlashCommandEvent event) {
+        LinkedList<AudioTrack> queue = trackScheduler.getQueue();
+
+        if(queue.isEmpty())
+            event.reply("The Queue is empty!").queue();
+        else {
+            ArrayList<String> items = new ArrayList<>();
+            long queueLength = 0;
+            for(AudioTrack track : queue){
+                items.add(String.format("`[%s]` %s", Util.MilisToTimestring(track.getDuration()), track.getInfo().title));
+                queueLength += track.getDuration();
+            }
+
+            new Paginator.Builder()
+                    .setText(String.format("Showing %s Tracks. \n Total Queue Time Length: %s", queue.size(), Util.MilisToTimestring(queueLength)))
+                    .setItems(items.toArray(new String[0]))
+                    .setItemsPerPage(10)
+                    .setEventWaiter(James.eventWaiter)
+                    .setColor(event.getGuild().getSelfMember().getColor())
+                    .useNumberedItems(true)
+                    .waitOnSinglePage(true)
+                    .setBulkSkipNumber(items.size() > 50 ? 5 : 0) // Only show bulk skip buttons when the Queue is sufficiently large
+                    .build()
+                    .display(event.getChannel());
+        }
+    }
+
     /**
      * Writes the currently playing track & queue's URIs to a file and sends it to the user.
      * @param event
      * @param fileName
      */
     public void sendQueueFile(CommandEvent event, String fileName) {
+        StringBuilder builder = new StringBuilder();
+        try {
+            builder.append(getPlayingTrack().getInfo().uri);
+        }
+        catch (NullPointerException e) {
+            event.reply("Nothing Playing!");
+        }
+        for (AudioTrack track : trackScheduler.getQueue())
+            builder.append("\n").append(track.getInfo().uri);
+
+        event.getTextChannel().sendFile(
+                new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8)), fileName
+        ).queue();
+    }
+
+    public void sendQueueFile(SlashCommandEvent event, String fileName) {
         StringBuilder builder = new StringBuilder();
         try {
             builder.append(getPlayingTrack().getInfo().uri);

@@ -9,6 +9,10 @@ import me.mcofficer.james.tools.Lookups;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.MessageBuilder;
+
+import java.util.function.*;
 
 import java.util.List;
 
@@ -16,13 +20,20 @@ public class Showimage extends ShowCommand {
 
     public Showimage(Lookups lookups) {
         super(lookups);
-        name = "showimage";
-        help = "Outputs the image associated with <query>.";
-        arguments = "<query>";
-        category = James.lookup;
+        this.name = "showimage";
+        this.help = "Outputs the image associated with <query>.";
+        this.arguments = "<query>";
     }
 
     protected void reply(DataNode node, CommandEvent event) {
         event.reply(embedImageByNode(node, event.getGuild(), lookups, false).build());
+    }
+
+    protected void reply(DataNode node, SlashCommandEvent event) {
+        MessageBuilder messageBuilder = new MessageBuilder();
+        EmbedBuilder embedBuilder = embedImageByNode(node, event.getGuild(), lookups, false);
+        messageBuilder.setEmbeds(embedBuilder.build());
+        event.reply(messageBuilder.build()).queue();
+        //event.reply(new MessageBuilder().setEmbed(embedImageByNode(node, event.getGuild(), lookups, false).build()).build()).queue();
     }
 }
