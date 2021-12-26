@@ -136,7 +136,7 @@ public class James {
         SlashCommand[] slashCommands = {
                 new Play(audio), new Stop(audio), new Loop(audio), new Skip(audio), new Remove(audio), new Shuffle(audio), new Current(audio),
                 new Pause(audio), new Unpause(audio), new Queue(audio), new Playlist(audio, playlists),
-                new Template(), new CRConvert(),
+                new SwizzleImage(), new Template(), new CRConvert(),
                 new Info(githubToken), new Ping(),
                 new Issue(), new Commit(), new Lookup(lookups), new Show(lookups), new Showdata(lookups), new Showimage(lookups), new Swizzle(lookups),
                 new Purge(), new Optin(optinRoles, timeoutRole), new Optout(optinRoles, timeoutRole),
