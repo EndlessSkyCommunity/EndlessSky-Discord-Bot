@@ -123,7 +123,7 @@ public class James {
                 new Cat(), new Dog(), new Birb(), new Translate(new Translator(okHttpClient)),
                 new Info(githubToken), new Ping(),
                 new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups),
-                new Purge(), new Optin(optinRoles, timeoutRole), new Optout(optinRoles),
+                new Purge(), new Optin(optinRoles, timeoutRole), new Optout(optinRoles, timeoutRole),
                 new Timeout(timeoutRole), new Activity(ontopicCategories), new Move()
         };
         return commands;
@@ -142,6 +142,7 @@ public class James {
         return slashCommands;
     }
 
+    //This method has been replaced with the above methods, I'm just keeping it around for now for reference.
     private void addCommands(CommandClientBuilder builder, String githubToken) throws IOException {
         log.info("Downloading game data...");
         ArrayList<File> paths = Util.fetchGameData(githubToken);
@@ -165,6 +166,7 @@ public class James {
 
         String[] optinRoles = cfg.getProperty("optinRoles").split(",");
         String[] ontopicCategories = cfg.getProperty("ontopicCategories").split(",");
+        String timeoutRole = cfg.getProperty("timeoutRole");
 
         builder.addCommands(
                 new Eval(lookups, playlists, cfg),
@@ -173,9 +175,9 @@ public class James {
                 new SwizzleImage(), new Template(), new CRConvert(),
                 new Cat(), new Dog(), new Birb(), new Translate(new Translator(okHttpClient)),
                 new Info(githubToken), new Ping(),
-                //new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups),
-                new Purge(), new Optin(optinRoles, cfg.getProperty("timeoutRole")), new Optout(optinRoles),
-                new Timeout(cfg.getProperty("timeoutRole")), new Activity(ontopicCategories), new Move()
+                new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups),
+                new Purge(), new Optin(optinRoles, timeoutRole), new Optout(optinRoles, timeoutRole),
+                new Timeout(timeoutRole), new Activity(ontopicCategories), new Move()
         );
     }
 }
