@@ -22,7 +22,27 @@ public class ImageSwizzler {
             "brg",
             "gbr",
             "bgr",
-            "gbb"
+            "gbb",
+            "rbb",
+            "rgg",
+            "bbb",
+            "ggg",
+            "rrr",
+            "bbg",
+            "bbr",
+            "ggr",
+            "bgg",
+            "brr",
+            "grr",
+            "bgb",
+            "brb",
+            "grg",
+            "ggb",
+            "rrb",
+            "rrg",
+            "gbg",
+            "rbr",
+            "rgr"
     };
 
     /**
