@@ -19,7 +19,7 @@ public class Swizzle extends Command {
 
     public Swizzle(Lookups lookups) {
         name = "swizzle";
-        help = "Displays information about a swizzle X (can range from 0-8)";
+        help = "Displays information about a swizzle X (can range from 0-28)";
         arguments = "X";
         category = James.lookup;
         this.lookups = lookups;
@@ -28,15 +28,35 @@ public class Swizzle extends Command {
 
     private void initVectors() {
         String[] vectorStrings = new String[]{
-                "{GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA} // red + yellow markings (republic)",
-                "{GL_RED, GL_BLUE, GL_GREEN, GL_ALPHA} // red + magenta markings",
-                "{GL_GREEN, GL_RED, GL_BLUE, GL_ALPHA} // green + yellow (freeholders)",
-                "{GL_BLUE, GL_RED, GL_GREEN, GL_ALPHA} // green + cyan",
-                "{GL_GREEN, GL_BLUE, GL_RED, GL_ALPHA} // blue + magenta (syndicate)",
-                "{GL_BLUE, GL_GREEN, GL_RED, GL_ALPHA} // blue + cyan (merchant)",
-                "{GL_GREEN, GL_BLUE, GL_BLUE, GL_ALPHA} // red and black (pirate)",
-                "{GL_BLUE, GL_ZERO, GL_ZERO, GL_ALPHA} // red only (cloaked)",
-                "{GL_ZERO, GL_ZERO, GL_ZERO, GL_ALPHA} // black only (outline)"
+		    "{GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA}, // 0 red + yellow markings (republic)",
+		    "{GL_RED, GL_BLUE, GL_GREEN, GL_ALPHA}, // 1 red + magenta markings",
+		    "{GL_GREEN, GL_RED, GL_BLUE, GL_ALPHA}, // 2 green + yellow (free worlds)",
+		    "{GL_BLUE, GL_RED, GL_GREEN, GL_ALPHA}, // 3 green + cyan",
+		    "{GL_GREEN, GL_BLUE, GL_RED, GL_ALPHA}, // 4 blue + magenta (syndicate)",
+    		"{GL_BLUE, GL_GREEN, GL_RED, GL_ALPHA}, // 5 blue + cyan (merchant)",
+		    "{GL_GREEN, GL_BLUE, GL_BLUE, GL_ALPHA}, // 6 red and black (pirate)",
+		    "{GL_RED, GL_BLUE, GL_BLUE, GL_ALPHA}, // 7 pure red",
+		    "{GL_RED, GL_GREEN, GL_GREEN, GL_ALPHA}, // 8 faded red",
+		    "{GL_BLUE, GL_BLUE, GL_BLUE, GL_ALPHA}, // 9 pure black",
+		    "{GL_GREEN, GL_GREEN, GL_GREEN, GL_ALPHA}, // 10 faded black",
+		    "{GL_RED, GL_RED, GL_RED, GL_ALPHA}, // 11 pure white",
+		    "{GL_BLUE, GL_BLUE, GL_GREEN, GL_ALPHA}, // 12 darkened blue",
+		    "{GL_BLUE, GL_BLUE, GL_RED, GL_ALPHA}, // 13 pure blue",
+		    "{GL_GREEN, GL_GREEN, GL_RED, GL_ALPHA}, // 14 faded blue",
+		    "{GL_BLUE, GL_GREEN, GL_GREEN, GL_ALPHA}, // 15 darkened cyan",
+		    "{GL_BLUE, GL_RED, GL_RED, GL_ALPHA}, // 16 pure cyan",
+		    "{GL_GREEN, GL_RED, GL_RED, GL_ALPHA}, // 17 faded cyan",
+		    "{GL_BLUE, GL_GREEN, GL_BLUE, GL_ALPHA}, // 18 darkened green",
+		    "{GL_BLUE, GL_RED, GL_BLUE, GL_ALPHA}, // 19 pure green",
+		    "{GL_GREEN, GL_RED, GL_GREEN, GL_ALPHA}, // 20 faded green",
+		    "{GL_GREEN, GL_GREEN, GL_BLUE, GL_ALPHA}, // 21 darkened yellow",
+		    "{GL_RED, GL_RED, GL_BLUE, GL_ALPHA}, // 22 pure yellow",
+		    "{GL_RED, GL_RED, GL_GREEN, GL_ALPHA}, // 23 faded yellow",
+		    "{GL_GREEN, GL_BLUE, GL_GREEN, GL_ALPHA}, // 24 darkened magenta",
+		    "{GL_RED, GL_BLUE, GL_RED, GL_ALPHA}, // 25 pure magenta",
+		    "{GL_RED, GL_GREEN, GL_RED, GL_ALPHA}, // 26 faded magenta",
+		    "{GL_BLUE, GL_ZERO, GL_ZERO, GL_ALPHA}, // 27 red only (cloaked)",
+		    "{GL_ZERO, GL_ZERO, GL_ZERO, GL_ALPHA} // 28 black only (outline)"
         };
 
         for (int i = 0; i < vectorStrings.length; i++)
