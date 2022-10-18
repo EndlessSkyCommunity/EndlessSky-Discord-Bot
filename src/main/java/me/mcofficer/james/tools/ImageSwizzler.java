@@ -22,7 +22,29 @@ public class ImageSwizzler {
             "brg",
             "gbr",
             "bgr",
-            "gbb"
+            "gbb",
+            "rbb",
+            "rgg",
+            "gbb",
+            "ggg",
+            "rrr",
+            "ggb",
+            "gbr",
+            "ggr",
+            "bgg",
+            "brr",
+            "grr",
+            "bgb",
+            "brb",
+            "grg",
+            "ggb",
+            "rrb",
+            "rrg",
+            "gbg",
+            "rbr",
+            "rgr",
+            "b  ",
+            "   "
     };
 
     /**
@@ -71,9 +93,12 @@ public class ImageSwizzler {
         for(int col = 0; col < width; col++) {
             for (int row = 0; row < height; row++) {
                 int a = channels[0][col][row];
-                int r = channels[channelOne][col][row];
-                int g = channels[channelTwo][col][row];
-                int b = channels[channelThree][col][row];
+                int r = 0;
+                int g = 0;
+                int b = 0;
+                if(channelOne != 4) r = channels[channelOne][col][row]; else r = 0;
+                if(channelTwo != 4) g = channels[channelTwo][col][row]; else g = 0;
+                if(channelThree != 4) b = channels[channelThree][col][row]; else b = 0;
                 int pixel = (a << 24) | (r << 16) | (g << 8) | b;
                 img.setRGB(col, row, pixel);
             }
@@ -85,6 +110,7 @@ public class ImageSwizzler {
         if(c == 'r') return 1;
         else if(c == 'g') return 2;
         else if(c == 'b') return 3;
+        else if(c == ' ') return 4;
         else return 0;
     }
 
