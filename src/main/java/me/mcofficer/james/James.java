@@ -15,6 +15,7 @@ import me.mcofficer.james.commands.misc.Dog;
 import me.mcofficer.james.commands.info.*;
 import me.mcofficer.james.commands.lookup.*;
 import me.mcofficer.james.commands.misc.Translate;
+import me.mcofficer.james.commands.misc.UnixTime;
 import me.mcofficer.james.commands.moderation.*;
 import me.mcofficer.james.tools.Lookups;
 import me.mcofficer.james.tools.Translator;
@@ -114,7 +115,7 @@ public class James {
                 new Play(audio), new Stop(audio), new Loop(audio), new Skip(audio), new Remove(audio), new Shuffle(audio), new Current(audio),
                 new Pause(audio), new Unpause(audio), new Queue(audio), new Playlist(audio, playlists),
                 new SwizzleImage(), new Template(), new CRConvert(),
-                new Cat(), new Dog(), new Birb(), new Translate(new Translator(okHttpClient)),
+                new Cat(), new Dog(), new Birb(), new Translate(new Translator(okHttpClient)), new UnixTime(),
                 new Info(githubToken), new Ping(),
                 new Issue(), new Commit(), new Showdata(lookups), new Showimage(lookups), new Show(lookups), new Lookup(lookups), new Swizzle(lookups),
                 new Purge(), new Optin(optinRoles, cfg.getProperty("timeoutRole")), new Optout(optinRoles),
