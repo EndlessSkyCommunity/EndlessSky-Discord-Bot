@@ -22,7 +22,7 @@ public class UnixTime extends Command {
 
     private static long GetOffset(CommandEvent event) {
         String argString = event.getArgs();
-        if(argString.isEmpty())
+        if (argString.isEmpty())
             return 0;
         String[] args = argString.split(" ");
         long offset = 0;
@@ -33,13 +33,13 @@ public class UnixTime extends Command {
             event.reply("Failed to parse \"" + args[1] + "\" as Long!");
             return 0;
         }
-        if(args.length > 1)
+        if (args.length > 1)
             return offset * GetMultiplier(args[1]);
         return offset;
     }
 
     private static int GetMultiplier(String multiplierString) {
-        if(multiplierString.isEmpty())
+        if (multiplierString.isEmpty())
             return 1;
         char multiplier = multiplierString.toUpperCase().charAt(0);
         switch (multiplier) {
