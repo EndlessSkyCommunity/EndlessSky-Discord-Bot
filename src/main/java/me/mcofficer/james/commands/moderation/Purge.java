@@ -6,7 +6,15 @@ import me.mcofficer.james.James;
 import me.mcofficer.james.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class Purge extends Command {
 
@@ -26,24 +34,37 @@ public class Purge extends Command {
                     throw new NumberFormatException();
                 TextChannel channel = event.getTextChannel();
 
-                event.getMessage().delete().queue( a ->
-                    channel.getHistory().retrievePast(amount).queue( messages -> {
-                        try {
-                            channel.deleteMessages(messages).queue(b -> {
-                                EmbedBuilder embedBuilder = new EmbedBuilder()
-                                        .setTitle("Moderation")
-                                        .setColor(event.getGuild().getSelfMember().getColor())
-                                        .setDescription("Spaced " + messages.size() + " Messages! Who's next?!");
-                                event.reply(embedBuilder.build());
-                                Util.log(event.getGuild(), String.format("Purged %s messages in %s, ordered by `%s`.",
-                                        amount, channel.getAsMention(), event.getMember().getEffectiveName()));
-                            });
-                        }
-                        catch(IllegalArgumentException e) {
-                            event.reply(event.getMember().getAsMention() + " One or more messages are older than 2 weeks and cannot be deleted.");
-                        }
-                    })
-                );
+				// Use a lambda to asynchronously perform this request:
+				event.getTextChannel().getIterableHistory().takeAsync(amount).thenAccept(toDelete -> {
+					if (toDelete.isEmpty())
+						return;
+					LinkedList<String> toMove = new LinkedList<>();
+					for (Message m : toDelete) {
+						String authorName = Optional.ofNullable(m.getMember()).map(Member::getEffectiveName).orElse("unknown author");
+						String content = m.getContentStripped().trim();
+						if (content.isEmpty())
+							continue;
+						toMove.addFirst(m.getTimeCreated()
+								.format(DateTimeFormatter.ISO_INSTANT).substring(11, 19)
+								+ "Z " + authorName + ": " + content + "\n"
+						);
+					}
+
+					// Remove the messages from the original channel
+					for (CompletableFuture<Void> future : event.getChannel().purgeMessages(toDelete))
+					{
+						future.exceptionally(t -> {
+							t.printStackTrace();
+							return null;
+						});
+					}
+
+					TextChannel dest = event.getGuild().getTextChannelsByName("mod-log", true).get(0);
+	
+					// Transport the message content to the new channel.
+					if (!toMove.isEmpty())
+						Util.sendInChunks(dest, toMove, "Incoming purged content from " + event.getTextChannel().getAsMention() + ":\n```", "```");
+				});
             }
             catch (NumberFormatException e) {
                 event.reply("'" + event.getArgs() + "' is not a valid integer between 2 and 100!");
